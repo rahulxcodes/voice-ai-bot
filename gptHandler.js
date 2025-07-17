@@ -1,16 +1,21 @@
-const { Configuration, OpenAIApi } = require("openai");
-const config = require("./config");
+const OpenAI = require("openai");
 
-const openai = new OpenAIApi(new Configuration({
-  apiKey: config.openaiApiKey
-}));
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-async function generateResponse(prompt) {
-  const completion = await openai.createChatCompletion({
-    model: "gpt-4",
-    messages: [{ role: "user", content: prompt }]
-  });
-  return completion.data.choices[0].message.content;
+async function getGPTResponse(prompt) {
+  try {
+    const chatCompletion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    return chatCompletion.choices[0].message.content;
+  } catch (err) {
+    console.error("Error in getGPTResponse:", err);
+    return "Sorry, there was an error processing your request.";
+  }
 }
 
-module.exports = { generateResponse };
+module.exports = { getGPTResponse };
